@@ -1,0 +1,40 @@
+# fichier permettant de lancer les tests dans github
+name: Selenium Tests
+
+# on : stratégie de test
+# dispatch : déclanchement manuel - cron : test programmé pour être lancé à telle date
+on:
+  workflow_dispatch:
+
+jobs:
+  # action : build - test - deploy
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      #accéder au code --> téléchargement
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # création d'un env virtuel
+      #installer python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      #installer les dépendances --> téléchargement
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      #lancer tous les tests (/) les uns après les autres
+      - name: Run tests
+        run: pytest tests/ -v
+
+      # si erreur on envoie les captures d'écran
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/
